@@ -7,7 +7,7 @@ function main() {
             // console.log('------File------');
             // console.log(data);
             // console.log('----------------');
-            let t = data.split('\r\n')
+            let t = data.split('\r\n');
             console.time('P1');
             console.log('Partie 1 :>> ',part_one(t));
             console.timeEnd('P1');
