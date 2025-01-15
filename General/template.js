@@ -2,7 +2,10 @@ const tools = require('../General/tools');
 
 function main() {
     // tools.readFileSync('./input')
-    tools.readFileSync('./input_test')
+    // tools.readFileSync('./input_test')
+    // const sFileInput = 'input'; 
+    const sFileInput = 'input_test';
+    tools.readFileSync(require('path').resolve(__dirname, sFileInput))
         .then((data) => { 
             // console.log('------File------');
             // console.log(data);

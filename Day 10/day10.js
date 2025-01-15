@@ -2,9 +2,14 @@ const tools = require('../General/tools');
 const finalHeight = '9';
 
 function main() {
+    //node get complete path on this file
+    // console.log('process.argv[1] :>> ', process.argv[1].split('\\').pop().join('\\'));
+    // console.log('__dirname :>> ', );
     // tools.readFileSync('./input')
     // tools.readFileSync('C:\\Users\\Admin\\Documents\\AdventOfCode2024\\Day 10\\input_test')
-    tools.readFileSync('C:\\Users\\Admin\\Documents\\AdventOfCode2024\\Day 10\\input')
+    const sFileInput = 'input';
+    // const sFileInput = 'input_test';
+    tools.readFileSync(require('path').resolve(__dirname, sFileInput))
         .then((data) => { 
             // console.log('------File------');
             // console.log(data);
@@ -15,15 +20,14 @@ function main() {
             console.log('Partie 1 :>> ',part_one(t));
             console.timeEnd('P1');
 
-            // console.time('P2');
-            // console.log('Partie 2 :>> ',part_two(t));
-            // console.timeEnd('P2');
+            console.time('P2');
+            console.log('Partie 2 :>> ',part_two(t));
+            console.timeEnd('P2');
         })
         .catch((err) => {
             console.error(err);
         });
 }
-
 
 function part_one(t) {
     let result = 0;
@@ -41,6 +45,34 @@ function part_one(t) {
                     foundRec = multiDimensionalUnique(foundRec);
                     tFound = [];
                     if (digitSearch == '9'){
+                        result += foundRec.length;
+                        // console.log('Trail L:', row,'C:',col,' :>> ', foundRec.length);
+                    } else {
+                        tFound = [...foundRec];
+                    }
+                } while (tFound.length > 0)
+            }
+        }
+    }
+    return result;
+}
+
+function part_two(t) {
+    let result = 0;
+    for (let row = 0; row < t.length; row++) {
+        for (let col = 0; col < t[row].length; col++) {
+            if (t[row][col] == '0') {
+                let digitSearch = '1';
+                let tFound = search(t, row, col, digitSearch);
+                do {
+                    let foundRec = [];
+                    digitSearch++;
+                    for (let found of tFound) {
+                        foundRec = foundRec.concat(search(t, found[0], found[1], digitSearch));
+                    }
+                    
+                    tFound = [];
+                    if (digitSearch == '9') {
                         result += foundRec.length;
                         // console.log('Trail L:', row,'C:',col,' :>> ', foundRec.length);
                     } else {
@@ -91,11 +123,6 @@ function search(t,row,col,digitSearch){
     }
 
     return tFound;
-}
-
-function part_two(t) {
-    let result = 0;
-    return result;
 }
 
 main();
