@@ -1,0 +1,196 @@
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Canvas - Ligne nette</title>
+        <style>
+            body,
+            html {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+            }
+
+            canvas {
+                display: block;
+            }
+        </style>
+    </head>
+
+    <body>
+        <canvas id="canvas"></canvas>
+
+        <script>
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+                const padding = 20;
+                const sq = Math.round(canvas.height / 2);
+
+            // Adapter la taille du canvas à la fenêtre
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                drawLine();
+            }
+
+
+            function drawLine() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+
+                // Décalage global pour aligner le tracé sur la grille de pixels
+                ctx.save();
+                ctx.translate(0.5, 0.5);
+
+                ctx.lineWidth = 5;
+                ctx.strokeStyle = '#333';
+
+                //ligne verticale
+                ctx.beginPath();
+                ctx.moveTo(2*padding, 0);
+                ctx.lineTo(2*padding, canvas.height - padding);
+                ctx.stroke();
+
+                //ligne horizontale
+                ctx.beginPath();
+                ctx.moveTo(padding, canvas.height - 2 * padding);
+                ctx.lineTo(canvas.width, canvas.height - 2 * padding);
+                ctx.stroke();
+
+                const points = [                    
+                    { x: 1, y: 2 }, 
+                    { x: 1, y: 3 }, 
+                    { x: 2, y: 2 }, 
+                    { x: 2, y: 3 },
+                    { x: 2, y: 4 }, 
+                    { x: 3, y: 2 }, 
+                    { x: 3, y: 3 }, 
+                    { x: 3, y: 4 },
+                    { x: 4, y: 3 }, 
+                    { x: 4, y: 4 }
+                ];
+
+                const cases = [
+                    { x: 2, y: 2, h: false, r: false, d: false, l: false },
+                    { x: 2, y: 1, h: false, r: false, d: false, l: false },
+                    { x: 3, y: 1, h: false, r: false, d: false, l: false },
+                    { x: 3, y: 0, h: false, r: false, d: false, l: false }
+                ];
+
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = '#333';
+                ctx.fillStyle = '#333';
+                ctx.beginPath();
+                for (let i = 1; i < 30; i++) {
+                    //ligne horizontale                 
+                    ctx.moveTo(2 * padding, canvas.height - 2 * padding - i * sq);
+                    ctx.lineTo(canvas.width, canvas.height - 2 * padding - i * sq);
+                    //ligne verticale
+                    ctx.moveTo(2 * padding + i * sq, 0);
+                    ctx.lineTo(2 * padding + i * sq, canvas.height - 2 * padding);
+                }
+                ctx.stroke();
+                //ctx.restore();
+                
+                points.forEach(p => {
+                    drawPoint(ctx, p.x, p.y);
+                });
+
+                ctx.restore(); // Restaurer l'état du contexte
+            }
+
+            // Redimensionner automatiquement le canvas
+            window.addEventListener('resize', resizeCanvas);
+
+            // Initialisation
+            resizeCanvas();
+
+            function drawPoint(ctx,x,y,color, size){
+                
+                ctx.beginPath();
+                size = size || 10;
+                ctx.fillStyle = color || '#a14d1a';
+                ctx.fillRect(2 * padding + x * sq - size /2, canvas.height - 2 * padding - y * sq + size / 2, size,-size);
+                //écrire une lettre juste au dessus centrée
+                // ctx.font = '20px Arial';
+                // ctx.fillStyle = '#000';
+                // ctx.textAlign = 'center';
+                // ctx.fillText('C', 2 * padding + x * sq, canvas.height - 2 * padding - y * sq - 10);
+
+            }
+
+            function drawPointToPoint(ctx, x1, y1, x2,y2, color, size) {
+                
+                ctx.beginPath();
+                ctx.strokeStyle = color || '#111';
+                ctx.lineWidth =  size || 1;
+                ctx.moveTo(2 * padding + x1 * sq, canvas.height - 2 * padding - y1 * sq);
+                ctx.lineTo(2 * padding + x2 * sq, canvas.height - 2 * padding - y2 * sq);
+                ctx.stroke();
+            }
+
+            function drawCase(ctx, oCase){
+                if(oCase.h){
+                    drawPointToPoint(ctx, oCase.x + 1, oCase.y + 1, oCase.x, oCase.y + 1,'#7b1d1d',3);
+                }
+                if(oCase.r){
+                    drawPointToPoint(ctx, oCase.x + 1, oCase.y, oCase.x + 1, oCase.y + 1,'#7b1d1d',3);
+                }
+                if(oCase.d){
+                    drawPointToPoint(ctx, oCase.x, oCase.y, oCase.x + 1, oCase.y,'#7b1d1d',3);
+                }
+                if(oCase.l){
+                    drawPointToPoint(ctx, oCase.x, oCase.y + 1, oCase.x, oCase.y,'#7b1d1d',3);
+                }
+            }
+            function nbSide(){
+                const cases = [
+                    { x: 2, y: 2, h: false, r: false, d: false, l: false },
+                    { x: 2, y: 1, h: false, r: false, d: false, l: false },
+                    { x: 3, y: 1, h: false, r: false, d: false, l: false },
+                    { x: 3, y: 0, h: false, r: false, d: false, l: false }
+                ];
+                let nb = 0;
+                //pour chaque case, on regarde autour
+                cases.forEach(c => {
+                    const h = !cases.find(c2 => c2.x === c.x && c2.y === c.y + 1);
+                    const r = !cases.find(c2 => c2.x === c.x + 1 && c2.y === c.y);
+                    const d = !cases.find(c2 => c2.x === c.x && c2.y === c.y - 1);
+                    const l = !cases.find(c2 => c2.x === c.x - 1 && c2.y === c.y);
+
+                    //si pas de case en haut, et qu'on a pas déjà compté haut pour une des cases de côtés, alors on incrémente
+                    if(h == undefined){
+                        if((r == undefined || r.h == false) && (l == undefined || l.h == false)){
+                            c.h = true;
+                            nb++;
+                        }
+                    }
+                    if(r == undefined){
+                        if((h == undefined || h.r == false) && (d == undefined || d.r == false)){
+                            c.r = true;
+                            nb++;
+                        }
+                    }
+                    if(d == undefined){
+                        if((r == undefined || r.d == false) && (l == undefined || l.d == false)){
+                            c.d = true;
+                            nb++;
+                        }
+                    }
+                    if(l == undefined){
+                        if((h == undefined || h.l == false) && (d == undefined || d.l == false)){
+                            c.l = true;
+                            nb++;
+                        }
+                    }
+                });
+
+            }
+        </script>
+    </body>
+
+    </html>
